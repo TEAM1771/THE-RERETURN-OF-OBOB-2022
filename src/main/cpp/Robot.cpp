@@ -6,7 +6,7 @@
 
 #include <fmt/core.h>
 
-// #include <rev/CANSparkMax.h>
+#include <rev/CANSparkMax.h>
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
@@ -33,11 +33,17 @@ void Robot::RobotPeriodic() {}
  * if-else structure below with additional strings. If using the SendableChooser
  * make sure to add them to the chooser code above as well.
  */
-void Robot::AutonomousInit() {}
+void Robot::AutonomousInit() {
+  using namespace std::literals::chrono_literals;
+  d_train.drive(0, 1);
+  std::this_thread::sleep_for(15s);
+}
 
 void Robot::AutonomousPeriodic() {}
 
-void Robot::TeleopInit() {}
+void Robot::TeleopInit() {
+
+}
 
 void Robot::TeleopPeriodic() {}
 
@@ -48,10 +54,6 @@ void Robot::DisabledPeriodic() {}
 void Robot::TestInit() {}
 
 void Robot::TestPeriodic() {}
-
-void Robot::SimulationInit() {}
-
-void Robot::SimulationPeriodic() {}
 
 #ifndef RUNNING_FRC_TESTS
 int main() {
