@@ -30,9 +30,9 @@ void DriveTrain::rotate(units::degree_t theta) {
 
     togo *= p_value;
     if (togo > 1) {
-        togo = std::floor(togo);
+        togo = 1;
     } else {
-        togo = std::ceil(togo);
+        togo = -1;
     }
     drive(togo, -togo);   
 }
