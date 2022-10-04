@@ -35,7 +35,7 @@ void Robot::RobotPeriodic() {}
  */
 void Robot::AutonomousInit() {
   using namespace std::literals::chrono_literals;
-  d_train.drive(0, 1);
+  DriveTrain::drive(0, 1);
   std::this_thread::sleep_for(15s);
 }
 
