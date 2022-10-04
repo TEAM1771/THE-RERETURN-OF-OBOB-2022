@@ -21,6 +21,4 @@ class Robot : public frc::TimedRobot {
   void DisabledPeriodic() override;
   void TestInit() override;
   void TestPeriodic() override;
-  private:
-    DriveTrain d_train{};
 };
