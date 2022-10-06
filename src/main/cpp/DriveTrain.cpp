@@ -1,16 +1,36 @@
-#include <DriveTrain.h>
+#include "DriveTrain.hpp"
+#include "Navx.hpp"
+
+#include <frc/Solenoid.h>
+#include <frc/PneumaticHub.h>
+#include <frc/Compressor.h>
+#include <wpi/numbers>
+
+#include <rev/CanSparkMAX.h>
+
 #include <cmath>
-#include <Navx.h>
 
-static constexpr double P_VAL = 1 / 180.0;
-static constexpr units::degree_t DEADBAND = 3_deg;
+constexpr double P_VAL = 1 / 180.0;
+constexpr units::degree_t DEADBAND = 3_deg;
 
-static constexpr double SPEED_UP_SLOW_DOWN_THRESHOLD = .9;
+constexpr double SPEED_UP_SLOW_DOWN_THRESHOLD = .9;
 
-static rev::CANSparkMax u_left{1, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
-static rev::CANSparkMax l_left{2, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
-static rev::CANSparkMax u_right{3, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
-static rev::CANSparkMax l_right{4, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
+static rev::CANSparkMax f_l{1, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
+static rev::CANSparkMax b_l{2, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
+static rev::CANSparkMax f_r{3, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
+static rev::CANSparkMax b_r{4, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
+
+static auto const f_l_encoder = f_l.GetEncoder();
+static auto const f_r_encoder = f_r.GetEncoder();
+
+constexpr auto SHIFT_UP_THRESHOLD = 3000;
+constexpr auto SHIFT_DOWN_THRESHOLD = 2000;
+
+constexpr int P_HUB_ID = 15;
+constexpr auto P_HUB_TYPE = frc::PneumaticsModuleType::REVPH;
+
+static frc::Compressor compressor{P_HUB_ID, P_HUB_TYPE};
+static frc::Solenoid shifter{P_HUB_ID, P_HUB_TYPE, 15};
 
 units::degree_t diffFromCurrentRot(units::degree_t new_CCW_rot)
 {
@@ -29,6 +49,20 @@ units::degree_t diffFromCurrentRot(units::degree_t new_CCW_rot)
     return diff;
 }
 
+void DriveTrain::init()
+{
+    compressor.EnableDigital();
+
+    constexpr auto IDLE_MODE = rev::CANSparkMax::IdleMode::kBrake;
+    f_l.SetIdleMode(IDLE_MODE);
+    f_r.SetIdleMode(IDLE_MODE);
+    b_l.SetIdleMode(IDLE_MODE);
+    b_r.SetIdleMode(IDLE_MODE);
+
+    f_r.SetInverted(true);
+    b_r.SetInverted(true);
+}
+
 void DriveTrain::drive(float l, float r)
 {
     if (l > 1)
@@ -41,10 +75,10 @@ void DriveTrain::drive(float l, float r)
     else if (r < -1)
         r = -1;
 
-    u_left.Set(l);
-    u_right.Set(-r);
-    l_left.Set(l);
-    l_right.Set(-r);
+    f_l.Set(l);
+    b_l.Set(l);
+    f_r.Set(r);
+    b_r.Set(r);
 }
 
 bool DriveTrain::rotate(units::degree_t desired_CCW_rot)
@@ -102,4 +136,28 @@ void DriveTrain::driveStraight(float percent_speed, units::degree_t desired_CCW_
         else                  // If correction is CW
             l += -correction; // Speed up left
     }
+}
+
+void DriveTrain::shift(bool up)
+{
+    if (up != shifter.Get())
+        shifter.Set(up);
+}
+
+void DriveTrain::shiftToggle()
+{
+    shifter.Toggle();
+}
+
+void DriveTrain::autoShift()
+{
+    auto const left_vel = f_l_encoder.GetVelocity();
+    auto const right_vel = f_r_encoder.GetVelocity();
+
+    auto const speed = std::abs((left_vel + right_vel) / 2);
+
+    if(speed > SHIFT_UP_THRESHOLD && !shifter.Get())
+        DriveTrain::shift(true);
+    else if(speed < SHIFT_DOWN_THRESHOLD && shifter.Get())
+        DriveTrain::shift(false);
 }

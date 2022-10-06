@@ -2,15 +2,21 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-#include "Robot.h"
+#include "Robot.hpp"
+#include "Buttons.hpp"
+#include "DriveTrain.hpp"
+#include "Intake.hpp"
 
-#include <fmt/core.h>
-
-#include <rev/CANSparkMax.h>
-
+#include <frc/Joystick.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
-void Robot::RobotInit() {}
+#include <fmt/core.h>
+#include <rev/CANSparkMax.h>
+
+void Robot::RobotInit()
+{
+  DriveTrain::init();
+}
 
 /**
  * This function is called every 20 ms, no matter the mode. Use
@@ -33,7 +39,8 @@ void Robot::RobotPeriodic() {}
  * if-else structure below with additional strings. If using the SendableChooser
  * make sure to add them to the chooser code above as well.
  */
-void Robot::AutonomousInit() {
+void Robot::AutonomousInit()
+{
   using namespace std::literals::chrono_literals;
   DriveTrain::drive(0, 1);
   std::this_thread::sleep_for(15s);
@@ -41,11 +48,27 @@ void Robot::AutonomousInit() {
 
 void Robot::AutonomousPeriodic() {}
 
-void Robot::TeleopInit() {
+void Robot::TeleopInit() {}
 
+void Robot::TeleopPeriodic()
+{
+  double const l = BUTTON::JOY_L.GetY();
+  double const r = BUTTON::JOY_R.GetY();
+
+  DriveTrain::autoShift();
+
+  DriveTrain::drive(l, r);
+
+  if(BUTTON::INTAKE)
+    Intake::run(false);
+  else if (BUTTON::OUTTAKE)
+    Intake::run(true);
+  else
+    Intake::stop();
+
+  // if (BUTTON::SHIFT.getRawButtonPressed())
+  //   DriveTrain::shiftToggle();
 }
-
-void Robot::TeleopPeriodic() {}
 
 void Robot::DisabledInit() {}
 
@@ -56,7 +79,8 @@ void Robot::TestInit() {}
 void Robot::TestPeriodic() {}
 
 #ifndef RUNNING_FRC_TESTS
-int main() {
+int main()
+{
   return frc::StartRobot<Robot>();
 }
 #endif
