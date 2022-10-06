@@ -5,10 +5,13 @@
 #include "Robot.h"
 
 #include <fmt/core.h>
+#include <frc/Joystick.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 #include <rev/CANSparkMax.h>
 
-#include <frc/smartdashboard/SmartDashboard.h>
+static const frc::Joystick joy_one{0};
+static const frc::Joystick joy_two{1};
 
 void Robot::RobotInit() {}
 
@@ -33,7 +36,8 @@ void Robot::RobotPeriodic() {}
  * if-else structure below with additional strings. If using the SendableChooser
  * make sure to add them to the chooser code above as well.
  */
-void Robot::AutonomousInit() {
+void Robot::AutonomousInit()
+{
   using namespace std::literals::chrono_literals;
   DriveTrain::drive(0, 1);
   std::this_thread::sleep_for(15s);
@@ -41,11 +45,17 @@ void Robot::AutonomousInit() {
 
 void Robot::AutonomousPeriodic() {}
 
-void Robot::TeleopInit() {
-
+void Robot::TeleopInit()
+{
 }
 
-void Robot::TeleopPeriodic() {}
+void Robot::TeleopPeriodic()
+{
+  double const l = joy_one.GetY();
+  double const r = joy_two.GetY();
+
+  DriveTrain::drive(l, r);
+}
 
 void Robot::DisabledInit() {}
 
@@ -56,7 +66,8 @@ void Robot::TestInit() {}
 void Robot::TestPeriodic() {}
 
 #ifndef RUNNING_FRC_TESTS
-int main() {
+int main()
+{
   return frc::StartRobot<Robot>();
 }
 #endif

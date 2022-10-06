@@ -1,16 +1,19 @@
 #include <DriveTrain.h>
-#include <cmath>
 #include <Navx.h>
+
+#include <rev/CanSparkMAX.h>
+
+#include <cmath>
 
 static constexpr double P_VAL = 1 / 180.0;
 static constexpr units::degree_t DEADBAND = 3_deg;
 
 static constexpr double SPEED_UP_SLOW_DOWN_THRESHOLD = .9;
 
-static rev::CANSparkMax u_left{1, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
-static rev::CANSparkMax l_left{2, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
-static rev::CANSparkMax u_right{3, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
-static rev::CANSparkMax l_right{4, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
+static rev::CANSparkMax f_l{1, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
+static rev::CANSparkMax b_l{2, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
+static rev::CANSparkMax f_r{3, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
+static rev::CANSparkMax b_r{4, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
 
 units::degree_t diffFromCurrentRot(units::degree_t new_CCW_rot)
 {
@@ -41,10 +44,10 @@ void DriveTrain::drive(float l, float r)
     else if (r < -1)
         r = -1;
 
-    u_left.Set(l);
-    u_right.Set(-r);
-    l_left.Set(l);
-    l_right.Set(-r);
+    f_l.Set(l);
+    b_l.Set(l);
+    f_r.Set(-r);
+    b_r.Set(-r);
 }
 
 bool DriveTrain::rotate(units::degree_t desired_CCW_rot)
