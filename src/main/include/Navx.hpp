@@ -6,17 +6,17 @@
 namespace Navx
 {
     void init();
-
+    
     // Returns values with 0 being front and positive angles going CW
-    [[nodiscard]] units::degree_t getAngle();
+    [[nodiscard]] units::degree_t getYaw();
 
     void zeroYaw();
 
-    [[nodiscard]] double getPitch();
+    [[nodiscard]] units::degree_t getPitch();
+
+    [[nodiscard]] units::degree_t getRoll();
 
     [[nodiscard]] frc::Rotation2d getCCWHeading();
 
     [[nodiscard]] frc::Rotation2d getCWHeading();
-
-    void setNavxOffset(units::degree_t new_offset);
 }

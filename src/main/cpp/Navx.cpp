@@ -1,16 +1,44 @@
 #include <Navx.h>
 
 #include <AHRS.h>
+#include <cmath>
+
+#include <wpi/numbers>
+
+struct Angles
+{
+    units::degree_t pitch;
+    units::degree_t roll;
+    units::degree_t yaw;
+};
 
 static std::unique_ptr<AHRS> navx;
-static auto navx_offset = 0_deg;
 
-void Navx::init() {
+Angles getCorrectedAngles()
+{
+
+    [[maybe_unused]] constexpr auto PITCH_OFFSET =
+        (-90 + -15.6) * (wpi::numbers::pi / 180);
+    constexpr auto COS = -0.26891982051;
+    constexpr auto SIN = -0.96316256682;
+
+    auto const pitch = navx->GetPitch();
+    auto const roll = navx->GetRoll();
+    auto const yaw = navx->GetYaw();
+
+    return {
+        units::degree_t{pitch},
+        units::degree_t{COS * roll + -SIN * yaw},
+        units::degree_t{SIN * roll + COS * yaw}};
+}
+
+void Navx::init()
+{
     navx = std::make_unique<AHRS>(frc::SPI::Port::kMXP);
 }
 
 // Returns values with 0 being front and positive angles going CW
-units::degree_t Navx::getAngle()
+units::degree_t Navx::getYaw()
 {
     static bool first_time_getting_angle = true;
 
@@ -19,7 +47,7 @@ units::degree_t Navx::getAngle()
         navx->ZeroYaw(); // This can't be called in init() since the gyro will still be calibrating
         first_time_getting_angle = false;
     }
-    return units::degree_t{navx->GetAngle()} + navx_offset;
+    return getCorrectedAngles().yaw;
 }
 
 void Navx::zeroYaw()
@@ -27,18 +55,17 @@ void Navx::zeroYaw()
     navx->ZeroYaw();
 }
 
-double Navx::getPitch()
+units::degree_t Navx::getPitch()
 {
-    // Roll instead of pitch because navx is installed sideways
-    return navx->GetRoll();
+    return getCorrectedAngles().pitch;
 }
 
-frc::Rotation2d Navx::getCCWHeading() { return {-getAngle()}; }
+units::degree_t Navx::getRoll()
+{
+    return getCorrectedAngles().roll;
+}
+
+frc::Rotation2d Navx::getCCWHeading() { return {-getYaw()}; }
 // or navx->GetRotation()
 
-frc::Rotation2d Navx::getCWHeading() { return {getAngle()}; }
-
-void Navx::setNavxOffset(units::degree_t new_offset)
-{
-    navx_offset = new_offset;
-}
+frc::Rotation2d Navx::getCWHeading() { return {getYaw()}; }
