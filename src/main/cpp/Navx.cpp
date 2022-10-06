@@ -1,4 +1,4 @@
-#include <Navx.h>
+#include "Navx.hpp"
 
 #include <AHRS.h>
 

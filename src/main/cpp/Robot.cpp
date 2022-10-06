@@ -2,18 +2,21 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-#include "Robot.h"
+#include "Robot.hpp"
+#include "Buttons.hpp"
+#include "DriveTrain.hpp"
+#include "Intake.hpp"
 
-#include <fmt/core.h>
 #include <frc/Joystick.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
+#include <fmt/core.h>
 #include <rev/CANSparkMax.h>
 
-static const frc::Joystick joy_one{0};
-static const frc::Joystick joy_two{1};
-
-void Robot::RobotInit() {}
+void Robot::RobotInit()
+{
+  DriveTrain::init();
+}
 
 /**
  * This function is called every 20 ms, no matter the mode. Use
@@ -45,16 +48,26 @@ void Robot::AutonomousInit()
 
 void Robot::AutonomousPeriodic() {}
 
-void Robot::TeleopInit()
-{
-}
+void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic()
 {
-  double const l = joy_one.GetY();
-  double const r = joy_two.GetY();
+  double const l = BUTTON::JOY_L.GetY();
+  double const r = BUTTON::JOY_R.GetY();
+
+  DriveTrain::autoShift();
 
   DriveTrain::drive(l, r);
+
+  if(BUTTON::INTAKE)
+    Intake::run(false);
+  else if (BUTTON::OUTTAKE)
+    Intake::run(true);
+  else
+    Intake::stop();
+
+  // if (BUTTON::SHIFT.getRawButtonPressed())
+  //   DriveTrain::shiftToggle();
 }
 
 void Robot::DisabledInit() {}
