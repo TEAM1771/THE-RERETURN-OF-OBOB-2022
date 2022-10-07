@@ -12,9 +12,9 @@ namespace Navx
 
     void zeroYaw();
 
-    [[nodiscard]] units::degree_t getPitch();
+    // [[nodiscard]] units::degree_t getPitch();
 
-    [[nodiscard]] units::degree_t getRoll();
+    // [[nodiscard]] units::degree_t getRoll();
 
     [[nodiscard]] frc::Rotation2d getCCWHeading();
 

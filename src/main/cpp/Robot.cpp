@@ -17,6 +17,7 @@
 void Robot::RobotInit()
 {
   DriveTrain::init();
+  Navx::init();
 }
 
 /**
@@ -29,16 +30,22 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic()
 {
-  frc::SmartDashboard::PutNumber("Pitch", Navx::getPitch().value());
-  frc::SmartDashboard::PutNumber("Roll", Navx::getRoll().value());
+  // frc::SmartDashboard::PutNumber("Pitch", Navx::getPitch().value());
+  // frc::SmartDashboard::PutNumber("Roll", Navx::getRoll().value());
   frc::SmartDashboard::PutNumber("Yaw", Navx::getYaw().value());
 }
 
 void Robot::AutonomousInit()
 {
   using namespace std::literals::chrono_literals;
-  DriveTrain::drive(0, 1);
-  std::this_thread::sleep_for(15s);
+  while (!DriveTrain::rotate(0_deg))
+    std::this_thread::sleep_for(10ms);
+
+  while (Robot::IsAutonomousEnabled())
+  {
+    DriveTrain::driveStraight(.3, 0_deg);
+    std::this_thread::sleep_for(10ms);
+  }
 }
 
 void Robot::AutonomousPeriodic() {}
@@ -47,19 +54,27 @@ void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic()
 {
+
   double const l = BUTTON::JOY_L.GetY();
   double const r = BUTTON::JOY_R.GetY();
 
   DriveTrain::autoShift();
 
-  DriveTrain::drive(l, r);
+  // DriveTrain::drive(l, r);
+
+  // if (BUTTON::INTAKE)
+  //   Intake::run(false);
+  // else if (BUTTON::OUTTAKE)
+  //   Intake::run(true);
+  // else
+  //   Intake::stop();
 
   if (BUTTON::INTAKE)
-    Intake::run(false);
+    DriveTrain::rotate(0_deg);
   else if (BUTTON::OUTTAKE)
-    Intake::run(true);
+    DriveTrain::rotate(90_deg);
   else
-    Intake::stop();
+    DriveTrain::driveStraight(l, 0_deg);
 
   // if (BUTTON::SHIFT.getRawButtonPressed())
   //   DriveTrain::shiftToggle();
@@ -71,7 +86,9 @@ void Robot::DisabledPeriodic() {}
 
 void Robot::TestInit() {}
 
-void Robot::TestPeriodic() {}
+void Robot::TestPeriodic()
+{
+}
 
 #ifndef RUNNING_FRC_TESTS
 int main()

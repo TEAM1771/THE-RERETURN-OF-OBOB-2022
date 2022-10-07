@@ -5,13 +5,14 @@
 #include <frc/PneumaticHub.h>
 #include <frc/Compressor.h>
 #include <wpi/numbers>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 #include <rev/CanSparkMAX.h>
 
 #include <cmath>
 
 constexpr double P_VAL = 1 / 180.0;
-constexpr units::degree_t DEADBAND = 3_deg;
+constexpr units::degree_t DEADBAND = .5_deg;
 
 constexpr double SPEED_UP_SLOW_DOWN_THRESHOLD = .9;
 
@@ -86,16 +87,21 @@ bool DriveTrain::rotate(units::degree_t desired_CCW_rot)
     // How far off is the bot?
     units::degree_t to_go_CCW = diffFromCurrentRot(desired_CCW_rot);
 
+    frc::SmartDashboard::PutNumber("to_go_CCW", to_go_CCW.value());
+    frc::SmartDashboard::PutNumber("Current", Navx::getCCWHeading().Degrees().value());
+
     // If less than deadband, don't bother correcting.
     if (to_go_CCW < DEADBAND && to_go_CCW > -DEADBAND)
         return true; // Return true because bot reached desired rot
 
     // Determine a speed percentage to spin at (positive is CCW, negative is CW)
-    int rot_percent = to_go_CCW.value() * P_VAL;
+    double rot_percent = to_go_CCW.value() * P_VAL;
+
+    frc::SmartDashboard::PutNumber("rot_percent", rot_percent);
 
     // Spin the bot at that percent speed
     // -, + to create CCW spin
-    drive(-rot_percent, rot_percent);
+    drive(rot_percent, -rot_percent);
 
     // Return false because bot did not yet reach desired rot
     return false;
@@ -110,31 +116,35 @@ void DriveTrain::driveStraight(float percent_speed, units::degree_t desired_CCW_
     if (to_go_CCW < DEADBAND && to_go_CCW > -DEADBAND)
     {
         drive(percent_speed, percent_speed);
-        return; // Return to exit function
     }
 
-    // Make variables to manipulate
-    int l = percent_speed;
-    int r = percent_speed;
-
-    // Determine a percent to correct (positive is CCW, negative is CW)
-    double correction = to_go_CCW.value() * P_VAL;
-
-    // If the motor percent power you have to work with is
-    // less than the percent you need to correct
-    if (1 - std::abs(percent_speed) < std::abs(correction))
-    {
-        if (correction > 0)   // If correction is CCW
-            l -= correction;  // Slow down left
-        else                  // If correction is CW
-            r -= -correction; // Slow down right
-    }
     else
     {
-        if (correction > 0)   // If correction is CCW
-            r += correction;  // Speed up right
-        else                  // If correction is CW
-            l += -correction; // Speed up left
+
+        // Make variables to manipulate
+        int l = percent_speed;
+        int r = percent_speed;
+
+        // Determine a percent to correct (positive is CCW, negative is CW)
+        double correction = to_go_CCW.value() * P_VAL;
+
+        // If the motor percent power you have to work with is
+        // less than the percent you need to correct
+        if (1 - std::abs(percent_speed) < std::abs(correction))
+        {
+            if (correction > 0)   // If correction is CCW
+                l -= correction;  // Slow down left
+            else                  // If correction is CW
+                r -= -correction; // Slow down right
+        }
+        else
+        {
+            if (correction > 0)   // If correction is CCW
+                r += correction;  // Speed up right
+            else                  // If correction is CW
+                l += -correction; // Speed up left
+        }
+        drive(l, r);
     }
 }
 
@@ -156,8 +166,8 @@ void DriveTrain::autoShift()
 
     auto const speed = std::abs((left_vel + right_vel) / 2);
 
-    if(speed > SHIFT_UP_THRESHOLD && !shifter.Get())
+    if (speed > SHIFT_UP_THRESHOLD && !shifter.Get())
         DriveTrain::shift(true);
-    else if(speed < SHIFT_DOWN_THRESHOLD && shifter.Get())
+    else if (speed < SHIFT_DOWN_THRESHOLD && shifter.Get())
         DriveTrain::shift(false);
 }
