@@ -101,7 +101,7 @@ bool DriveTrain::rotate(units::degree_t desired_CCW_rot)
 
     // Spin the bot at that percent speed
     // -, + to create CCW spin
-    drive(rot_percent, -rot_percent);
+    drive(-rot_percent, rot_percent);
 
     // Return false because bot did not yet reach desired rot
     return false;

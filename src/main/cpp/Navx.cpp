@@ -100,7 +100,7 @@ void Navx::zeroYaw()
 //     return getCorrectedAngles().roll;
 // }
 
-frc::Rotation2d Navx::getCCWHeading() { return {-getYaw()}; }
+frc::Rotation2d Navx::getCCWHeading() { return {getYaw()}; }
 // or navx->GetRotation()
 
-frc::Rotation2d Navx::getCWHeading() { return {getYaw()}; }
+frc::Rotation2d Navx::getCWHeading() { return {-getYaw()}; }
