@@ -58,9 +58,15 @@ void Robot::TeleopPeriodic()
   double const l = BUTTON::JOY_L.GetY();
   double const r = BUTTON::JOY_R.GetY();
 
-  DriveTrain::autoShift();
+  DriveTrain::shift(false);
+  // static bool has_changed = false;
+  // DriveTrain::shift(has_changed ^=BUTTON::SHIFT);
 
-  DriveTrain::drive(l, r);
+  // if(BUTTON::JOY_R.GetThrottle() > 0)
+    DriveTrain::drive(l, r);
+  //   else
+    // DriveTrain::drive(-r, -l);
+
 
   if (BUTTON::INTAKE)
     Intake::run(false);

@@ -68,7 +68,7 @@ void DriveTrain::init()
 {
     compressor.EnableDigital();
 
-    constexpr auto IDLE_MODE = rev::CANSparkMax::IdleMode::kBrake;
+    constexpr auto IDLE_MODE = rev::CANSparkMax::IdleMode::kCoast;
     f_l.SetIdleMode(IDLE_MODE);
     f_r.SetIdleMode(IDLE_MODE);
     b_l.SetIdleMode(IDLE_MODE);
