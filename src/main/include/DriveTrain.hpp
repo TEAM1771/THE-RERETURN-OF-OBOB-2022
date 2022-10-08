@@ -4,6 +4,10 @@
 
 namespace DriveTrain
 {
+    /******************************************************************/
+    /*                  Public Function Declarations                  */
+    /******************************************************************/
+
     void init();
 
     void drive(float l, float r);

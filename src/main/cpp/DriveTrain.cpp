@@ -11,27 +11,37 @@
 
 #include <cmath>
 
+/******************************************************************/
+/*                        Private Variables                       */
+/******************************************************************/
+
+// For rotate and driveStraight functions
 constexpr double P_VAL = 1 / 180.0;
 constexpr units::degree_t DEADBAND = .5_deg;
 
-constexpr double SPEED_UP_SLOW_DOWN_THRESHOLD = .9;
-
+// For drive function
 static rev::CANSparkMax f_l{1, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
 static rev::CANSparkMax b_l{2, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
 static rev::CANSparkMax f_r{3, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
 static rev::CANSparkMax b_r{4, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
 
+// For autoShift()
 static auto const f_l_encoder = f_l.GetEncoder();
 static auto const f_r_encoder = f_r.GetEncoder();
-
 constexpr auto SHIFT_UP_THRESHOLD = 3000;
 constexpr auto SHIFT_DOWN_THRESHOLD = 2000;
 
+// For shift function
 constexpr int P_HUB_ID = 15;
 constexpr auto P_HUB_TYPE = frc::PneumaticsModuleType::REVPH;
-
-static frc::Compressor compressor{P_HUB_ID, P_HUB_TYPE};
 static frc::Solenoid shifter{P_HUB_ID, P_HUB_TYPE, 15};
+
+// For enabling the compressor in init()
+static frc::Compressor compressor{P_HUB_ID, P_HUB_TYPE};
+
+/******************************************************************/
+/*                  Private Function Definitions                  */
+/******************************************************************/
 
 units::degree_t diffFromCurrentRot(units::degree_t new_CCW_rot)
 {
@@ -49,6 +59,10 @@ units::degree_t diffFromCurrentRot(units::degree_t new_CCW_rot)
 
     return diff;
 }
+
+/******************************************************************/
+/*                   Public Function Defintions                   */
+/******************************************************************/
 
 void DriveTrain::init()
 {

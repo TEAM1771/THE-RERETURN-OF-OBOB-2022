@@ -5,8 +5,12 @@
 
 namespace Navx
 {
+    /******************************************************************/
+    /*                  Public Function Declarations                  */
+    /******************************************************************/
+
     void init();
-    
+
     // Returns values with 0 being front and positive angles going CW
     [[nodiscard]] units::degree_t getYaw();
 

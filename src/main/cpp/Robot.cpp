@@ -14,6 +14,10 @@
 #include <fmt/core.h>
 #include <rev/CANSparkMax.h>
 
+/******************************************************************/
+/*                   Public Function Defintions                   */
+/******************************************************************/
+
 void Robot::RobotInit()
 {
   DriveTrain::init();
@@ -30,9 +34,11 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic()
 {
+  // Tuning/debugging purposes
+
   // frc::SmartDashboard::PutNumber("Pitch", Navx::getPitch().value());
   // frc::SmartDashboard::PutNumber("Roll", Navx::getRoll().value());
-  frc::SmartDashboard::PutNumber("Yaw", Navx::getYaw().value());
+  // frc::SmartDashboard::PutNumber("Yaw", Navx::getYaw().value());
 }
 
 void Robot::AutonomousInit()
@@ -60,24 +66,21 @@ void Robot::TeleopPeriodic()
 
   DriveTrain::autoShift();
 
-  // DriveTrain::drive(l, r);
-
-  // if (BUTTON::INTAKE)
-  //   Intake::run(false);
-  // else if (BUTTON::OUTTAKE)
-  //   Intake::run(true);
-  // else
-  //   Intake::stop();
+  DriveTrain::drive(l, r);
 
   if (BUTTON::INTAKE)
-    DriveTrain::rotate(0_deg);
+    Intake::run(false);
   else if (BUTTON::OUTTAKE)
-    DriveTrain::rotate(90_deg);
+    Intake::run(true);
   else
-    DriveTrain::driveStraight(l, 0_deg);
+    Intake::stop();
 
+  // Manual shifting
   // if (BUTTON::SHIFT.getRawButtonPressed())
   //   DriveTrain::shiftToggle();
+
+  // Tuning/debugging purposes
+  frc::SmartDashboard::PutNumber("Yaw", Navx::getYaw().value());
 }
 
 void Robot::DisabledInit() {}
@@ -88,8 +91,21 @@ void Robot::TestInit() {}
 
 void Robot::TestPeriodic()
 {
+  // For testing rotate and driveStraight functions
+  double const l = BUTTON::JOY_L.GetY();
+
+  if (BUTTON::INTAKE)
+    DriveTrain::rotate(0_deg);
+  else if (BUTTON::OUTTAKE)
+    DriveTrain::rotate(90_deg);
+  else
+    DriveTrain::driveStraight(l, 0_deg);
+
+  // Tuning/debugging purposes
+  frc::SmartDashboard::PutNumber("Yaw", Navx::getYaw().value());
 }
 
+// This is just to run the WPILIB magic
 #ifndef RUNNING_FRC_TESTS
 int main()
 {
