@@ -7,6 +7,7 @@
 #include "DriveTrain.hpp"
 #include "Intake.hpp"
 #include "Navx.hpp"
+#include "Auton.hpp"
 
 #include <frc/Joystick.h>
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -22,6 +23,7 @@ void Robot::RobotInit()
 {
   DriveTrain::init();
   Navx::init();
+  Auton::pushSelector();
 }
 
 /**
@@ -43,15 +45,7 @@ void Robot::RobotPeriodic()
 
 void Robot::AutonomousInit()
 {
-  using namespace std::literals::chrono_literals;
-  while (!DriveTrain::rotate(0_deg))
-    std::this_thread::sleep_for(10ms);
-
-  while (Robot::IsAutonomousEnabled())
-  {
-    DriveTrain::driveStraight(.3, 0_deg);
-    std::this_thread::sleep_for(10ms);
-  }
+  Auton::run();
 }
 
 void Robot::AutonomousPeriodic() {}

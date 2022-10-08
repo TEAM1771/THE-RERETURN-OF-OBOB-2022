@@ -16,8 +16,8 @@
 /******************************************************************/
 
 // For rotate and driveStraight functions
-constexpr double P_VAL = 1 / 180.0;
-constexpr units::degree_t DEADBAND = .5_deg;
+constexpr double ROT_P = 1 / 180.0;
+constexpr units::degree_t ROT_DEADBAND = .5_deg;
 
 // For drive function
 static rev::CANSparkMax f_l{1, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
@@ -45,9 +45,9 @@ static frc::Compressor compressor{P_HUB_ID, P_HUB_TYPE};
 
 units::degree_t diffFromCurrentRot(units::degree_t new_CCW_rot)
 {
-    units::degree_t current_rot = Navx::getCCWHeading().Degrees();
+    units::degree_t current_CCW_rot = Navx::getCCWHeading().Degrees();
 
-    units::degree_t diff{new_CCW_rot - current_rot}; // Difference between current & desired
+    units::degree_t diff{new_CCW_rot - current_CCW_rot}; // Difference between current & desired
 
     diff = units::degree_t{std::fmod(diff.value(), 360)}; // Rounds any angle above 360 or below -360
                                                           // to be between -360, 360
@@ -96,20 +96,26 @@ void DriveTrain::drive(float l, float r)
     b_r.Set(r);
 }
 
+void DriveTrain::stop()
+{
+    drive(0, 0);
+}
+
 bool DriveTrain::rotate(units::degree_t desired_CCW_rot)
 {
     // How far off is the bot?
     units::degree_t to_go_CCW = diffFromCurrentRot(desired_CCW_rot);
 
+    // For debugging / tuning
     frc::SmartDashboard::PutNumber("to_go_CCW", to_go_CCW.value());
-    frc::SmartDashboard::PutNumber("Current", Navx::getCCWHeading().Degrees().value());
+    frc::SmartDashboard::PutNumber("Current rot (from NavX)", Navx::getCCWHeading().Degrees().value());
 
     // If less than deadband, don't bother correcting.
-    if (to_go_CCW < DEADBAND && to_go_CCW > -DEADBAND)
+    if (to_go_CCW < ROT_DEADBAND && to_go_CCW > -ROT_DEADBAND)
         return true; // Return true because bot reached desired rot
 
     // Determine a speed percentage to spin at (positive is CCW, negative is CW)
-    double rot_percent = to_go_CCW.value() * P_VAL;
+    double rot_percent = to_go_CCW.value() * ROT_P;
 
     frc::SmartDashboard::PutNumber("rot_percent", rot_percent);
 
@@ -121,30 +127,30 @@ bool DriveTrain::rotate(units::degree_t desired_CCW_rot)
     return false;
 }
 
-void DriveTrain::driveStraight(float percent_speed, units::degree_t desired_CCW_rot)
+void DriveTrain::driveStraight(float velocity_percent, units::degree_t desired_CCW_rot)
 {
     // How far off is the bot?
     units::degree_t to_go_CCW = diffFromCurrentRot(desired_CCW_rot);
 
     // If less than deadband, don't bother correcting.
-    if (to_go_CCW < DEADBAND && to_go_CCW > -DEADBAND)
+    if (to_go_CCW < ROT_DEADBAND && to_go_CCW > -ROT_DEADBAND)
     {
-        drive(percent_speed, percent_speed);
+        drive(velocity_percent, velocity_percent);
     }
 
     else
     {
 
         // Make variables to manipulate
-        int l = percent_speed;
-        int r = percent_speed;
+        int l = velocity_percent;
+        int r = velocity_percent;
 
         // Determine a percent to correct (positive is CCW, negative is CW)
-        double correction = to_go_CCW.value() * P_VAL;
+        double correction = to_go_CCW.value() * ROT_P;
 
         // If the motor percent power you have to work with is
         // less than the percent you need to correct
-        if (1 - std::abs(percent_speed) < std::abs(correction))
+        if (1 - std::abs(velocity_percent) < std::abs(correction))
         {
             if (correction > 0)   // If correction is CCW
                 l -= correction;  // Slow down left
@@ -184,4 +190,14 @@ void DriveTrain::autoShift()
         DriveTrain::shift(true);
     else if (speed < SHIFT_DOWN_THRESHOLD && shifter.Get())
         DriveTrain::shift(false);
+}
+
+double DriveTrain::getFLPos()
+{
+    return f_l_encoder.GetPosition();
+}
+
+double DriveTrain::getFRPos()
+{
+    return f_r_encoder.GetPosition();
 }
