@@ -55,18 +55,17 @@ void Robot::TeleopInit() {}
 void Robot::TeleopPeriodic()
 {
 
-  double const l = BUTTON::JOY_L.GetY();
-  double const r = BUTTON::JOY_R.GetY();
+  double const l = -BUTTON::JOY_L.GetY();
+  double const r = -BUTTON::JOY_R.GetY();
 
   DriveTrain::shift(false);
   // static bool has_changed = false;
   // DriveTrain::shift(has_changed ^=BUTTON::SHIFT);
 
   // if(BUTTON::JOY_R.GetThrottle() > 0)
-    DriveTrain::drive(l, r);
+  DriveTrain::drive(l, r);
   //   else
-    // DriveTrain::drive(-r, -l);
-
+  // DriveTrain::drive(-r, -l);
 
   if (BUTTON::INTAKE)
     Intake::run(false);
@@ -92,7 +91,7 @@ void Robot::TestInit() {}
 void Robot::TestPeriodic()
 {
   // For testing rotate and driveStraight functions
-  double const l = BUTTON::JOY_L.GetY();
+  double const l = -BUTTON::JOY_L.GetY();
 
   if (BUTTON::INTAKE)
     DriveTrain::rotate(0_deg);

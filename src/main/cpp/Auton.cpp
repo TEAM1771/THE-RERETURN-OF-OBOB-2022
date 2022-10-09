@@ -27,18 +27,9 @@ void sleep()
     std::this_thread::sleep_for(10ms);
 }
 
-void rotateUntil(units::degree_t desired_CCW_rot)
+void rotateUntil(units::degree_t desired_CCW_rot, units::degree_t tolerance = 1_deg)
 {
-    while (!DriveTrain::rotate(desired_CCW_rot))
-        sleep();
-}
-
-void wait(units::second_t time)
-{
-    frc::Timer timer;
-    timer.Start();
-
-    while (!timer.HasElapsed(time))
+    while (!DriveTrain::rotate(desired_CCW_rot, tolerance))
         sleep();
 }
 
@@ -89,23 +80,54 @@ void driveStraightFor(double velocity_percent, units::degree_t desired_CCW_rot, 
 /*               Private Auton Function Definitions               */
 /******************************************************************/
 
-void roboBuddies()
+void robo6()
 {
-    driveStraightFor(.3, 0_deg, 10000);
-    rotateUntil(110_deg);
-    wait(5_s);
+    frc::Timer timer;
+    timer.Start();
+
+    driveStraightFor(.2, 0_deg, 60);
+    rotateUntil(-45_deg);
+    while (!timer.HasElapsed(13_s))
+        sleep();
     Intake::run(true);
+}
+
+void robo5()
+{
+    DriveTrain::brakeMode();
+
+    frc::Timer timer;
+    timer.Start();
+
+    while (!timer.HasElapsed(5_s))
+        sleep();
+
+    driveStraightFor(-.4, 0_deg, 60);
+    rotateUntil(-90_deg);
+    driveStraightFor(.4, -90_deg, 50);
+    rotateUntil(-85_deg);
+    DriveTrain::stop();
+
+    while (!timer.HasElapsed(11.75_s))
+        sleep();
+
+
+    Intake::run(true);
+
+    DriveTrain::coastMode();
 }
 
 void prepareToBully()
 {
-    Intake::run(true);
-    driveStraightFor(.3, 0_deg, 8000);
-    rotateUntil(180_deg);
-    driveStraightFor(.3, 0_deg, 8000);
-    rotateUntil(-100_deg);
-    driveStraightFor(.3, 0_deg, 14000);
-    rotateUntil(180_deg);
+    Intake::run(false);
+    rotateUntil(3_deg, 1.5_deg);
+    driveStraightFor(-.25, 3_deg, 55);
+    driveStraightFor(.25, 3_deg, 55);
+    rotateUntil(-107_deg);
+    driveStraightFor(-.3, -104_deg, 95);
+    rotateUntil(-15_deg);
+
+    DriveTrain::stop();
 }
 
 /******************************************************************/
@@ -115,7 +137,8 @@ void prepareToBully()
 void Auton::pushSelector()
 {
     auton_selector.SetDefaultOption("Default - Prepare to Bully (pickup 2 and face)", prepareToBully);
-    auton_selector.AddOption("Buddy up with Robosaurus", roboBuddies);
+    auton_selector.AddOption("Robosaurus 6 + 1 Ball", robo6);
+    auton_selector.AddOption("Robosaurus 5 + 1 Ball", robo5);
 
     frc::SmartDashboard::PutData("Auton Selector", &auton_selector);
 }

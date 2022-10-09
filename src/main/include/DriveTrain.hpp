@@ -10,11 +10,11 @@ namespace DriveTrain
 
     void init();
 
-    void drive(float l, float r);
+    void drive(double l, double r);
     void stop();
 
-    bool rotate(units::degree_t desired_CCW_rot);
-    void driveStraight(float velocity_percent, units::degree_t desired_CCW_rot);
+    bool rotate(units::degree_t desired_CCW_rot, units::degree_t tolerance = 1_deg);
+    void driveStraight(double velocity_percent, units::degree_t desired_CCW_rot);
 
     void shift(bool up);
     void shiftToggle();
@@ -22,4 +22,7 @@ namespace DriveTrain
 
     [[nodiscard]] double getFLPos();
     [[nodiscard]] double getFRPos();
+
+    void brakeMode();
+    void coastMode();
 }

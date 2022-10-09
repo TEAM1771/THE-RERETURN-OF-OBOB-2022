@@ -16,8 +16,8 @@
 /******************************************************************/
 
 // For rotate and driveStraight functions
-constexpr double ROT_P = 1 / 180.0;
-constexpr units::degree_t ROT_DEADBAND = .5_deg;
+constexpr double ROT_P = 1 / 30.0;
+constexpr double MAX_ROT = .3;
 
 // For drive function
 static rev::CANSparkMax f_l{1, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
@@ -68,17 +68,16 @@ void DriveTrain::init()
 {
     compressor.EnableDigital();
 
-    constexpr auto IDLE_MODE = rev::CANSparkMax::IdleMode::kCoast;
-    f_l.SetIdleMode(IDLE_MODE);
-    f_r.SetIdleMode(IDLE_MODE);
-    b_l.SetIdleMode(IDLE_MODE);
-    b_r.SetIdleMode(IDLE_MODE);
+    coastMode();
 
-    f_r.SetInverted(true);
-    b_r.SetInverted(true);
+    f_l.SetInverted(true);
+    b_l.SetInverted(true);
+
+    f_r.SetInverted(false);
+    b_r.SetInverted(false);
 }
 
-void DriveTrain::drive(float l, float r)
+void DriveTrain::drive(double l, double r)
 {
     if (l > 1)
         l = 1;
@@ -101,7 +100,7 @@ void DriveTrain::stop()
     drive(0, 0);
 }
 
-bool DriveTrain::rotate(units::degree_t desired_CCW_rot)
+bool DriveTrain::rotate(units::degree_t desired_CCW_rot, units::degree_t tolerance)
 {
     // How far off is the bot?
     units::degree_t to_go_CCW = diffFromCurrentRot(desired_CCW_rot);
@@ -110,12 +109,11 @@ bool DriveTrain::rotate(units::degree_t desired_CCW_rot)
     frc::SmartDashboard::PutNumber("to_go_CCW", to_go_CCW.value());
     frc::SmartDashboard::PutNumber("Current rot (from NavX)", Navx::getCCWHeading().Degrees().value());
 
-    // If less than deadband, don't bother correcting.
-    if (to_go_CCW < ROT_DEADBAND && to_go_CCW > -ROT_DEADBAND)
-        return true; // Return true because bot reached desired rot
-
     // Determine a speed percentage to spin at (positive is CCW, negative is CW)
     double rot_percent = to_go_CCW.value() * ROT_P;
+
+    if (std::abs(rot_percent) > MAX_ROT)
+        rot_percent = (rot_percent > 0) ? MAX_ROT : -MAX_ROT;
 
     frc::SmartDashboard::PutNumber("rot_percent", rot_percent);
 
@@ -123,49 +121,37 @@ bool DriveTrain::rotate(units::degree_t desired_CCW_rot)
     // -, + to create CCW spin
     drive(-rot_percent, rot_percent);
 
-    // Return false because bot did not yet reach desired rot
-    return false;
+    // Return true if within tolerance
+    return to_go_CCW < tolerance && to_go_CCW > -tolerance;
 }
 
-void DriveTrain::driveStraight(float velocity_percent, units::degree_t desired_CCW_rot)
+void DriveTrain::driveStraight(double velocity_percent, units::degree_t desired_CCW_rot)
 {
     // How far off is the bot?
     units::degree_t to_go_CCW = diffFromCurrentRot(desired_CCW_rot);
 
-    // If less than deadband, don't bother correcting.
-    if (to_go_CCW < ROT_DEADBAND && to_go_CCW > -ROT_DEADBAND)
+    // Make variables to manipulate
+    double l = velocity_percent;
+    double r = velocity_percent;
+
+    // Determine a percent to correct (positive is CCW, negative is CW)
+    double correction = to_go_CCW.value() * ROT_P;
+
+    if (std::abs(correction) > MAX_ROT)
+        correction = MAX_ROT;
+
+    if (correction > 0) // If correction is CCW
     {
-        drive(velocity_percent, velocity_percent);
+        r += correction; // Speed up right
+        l -= correction; // Slow down left
+    }
+    else // If correction is CW
+    {
+        l += -correction; // Speed up left
+        r -= -correction; // Slow down right
     }
 
-    else
-    {
-
-        // Make variables to manipulate
-        int l = velocity_percent;
-        int r = velocity_percent;
-
-        // Determine a percent to correct (positive is CCW, negative is CW)
-        double correction = to_go_CCW.value() * ROT_P;
-
-        // If the motor percent power you have to work with is
-        // less than the percent you need to correct
-        if (1 - std::abs(velocity_percent) < std::abs(correction))
-        {
-            if (correction > 0)   // If correction is CCW
-                l -= correction;  // Slow down left
-            else                  // If correction is CW
-                r -= -correction; // Slow down right
-        }
-        else
-        {
-            if (correction > 0)   // If correction is CCW
-                r += correction;  // Speed up right
-            else                  // If correction is CW
-                l += -correction; // Speed up left
-        }
-        drive(l, r);
-    }
+    drive(l, r);
 }
 
 void DriveTrain::shift(bool up)
@@ -200,4 +186,20 @@ double DriveTrain::getFLPos()
 double DriveTrain::getFRPos()
 {
     return f_r_encoder.GetPosition();
+}
+
+void DriveTrain::brakeMode()
+{
+    f_l.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    f_r.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    b_l.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    b_r.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+}
+
+void DriveTrain::coastMode()
+{
+    f_l.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
+    f_r.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
+    b_l.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
+    b_r.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
 }

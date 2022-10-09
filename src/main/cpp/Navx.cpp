@@ -81,7 +81,7 @@ void Navx::init()
     navx = std::make_unique<AHRS>(frc::SPI::Port::kMXP);
 }
 
-// Returns values with 0 being front and positive angles going CCW (bc Navx is mounted weirdly)
+// Returns values with 0 being front and positive angles going CW
 units::degree_t Navx::getYaw()
 {
 
@@ -111,6 +111,6 @@ void Navx::zeroYaw()
 //     return getCorrectedAngles().roll;
 // }
 
-frc::Rotation2d Navx::getCCWHeading() { return {getYaw()}; }
+frc::Rotation2d Navx::getCCWHeading() { return {-getYaw()}; }
 
-frc::Rotation2d Navx::getCWHeading() { return {-getYaw()}; }
+frc::Rotation2d Navx::getCWHeading() { return {getYaw()}; }
