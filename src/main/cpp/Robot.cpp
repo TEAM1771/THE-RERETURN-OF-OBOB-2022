@@ -79,7 +79,7 @@ void Robot::TeleopPeriodic()
   //   DriveTrain::shiftToggle();
 
   // Tuning/debugging purposes
-  frc::SmartDashboard::PutNumber("Yaw", Navx::getYaw().value());
+  // frc::SmartDashboard::PutNumber("Yaw", Navx::getYaw().value());
 }
 
 void Robot::DisabledInit() {}
@@ -101,7 +101,7 @@ void Robot::TestPeriodic()
     DriveTrain::driveStraight(l, 0_deg);
 
   // Tuning/debugging purposes
-  frc::SmartDashboard::PutNumber("Yaw", Navx::getYaw().value());
+  // frc::SmartDashboard::PutNumber("Yaw", Navx::getYaw().value());
 }
 
 // This is just to run the WPILIB magic

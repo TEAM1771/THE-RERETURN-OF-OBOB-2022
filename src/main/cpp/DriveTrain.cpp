@@ -105,9 +105,7 @@ bool DriveTrain::rotate(units::degree_t desired_CCW_rot, units::degree_t toleran
     // How far off is the bot?
     units::degree_t to_go_CCW = diffFromCurrentRot(desired_CCW_rot);
 
-    // For debugging / tuning
-    frc::SmartDashboard::PutNumber("to_go_CCW", to_go_CCW.value());
-    frc::SmartDashboard::PutNumber("Current rot (from NavX)", Navx::getCCWHeading().Degrees().value());
+
 
     // Determine a speed percentage to spin at (positive is CCW, negative is CW)
     double rot_percent = to_go_CCW.value() * ROT_P;
@@ -115,7 +113,10 @@ bool DriveTrain::rotate(units::degree_t desired_CCW_rot, units::degree_t toleran
     if (std::abs(rot_percent) > MAX_ROT)
         rot_percent = (rot_percent > 0) ? MAX_ROT : -MAX_ROT;
 
-    frc::SmartDashboard::PutNumber("rot_percent", rot_percent);
+    // For debugging / tuning
+    // frc::SmartDashboard::PutNumber("to_go_CCW", to_go_CCW.value());
+    // frc::SmartDashboard::PutNumber("Current rot (from NavX)", Navx::getCCWHeading().Degrees().value());
+    // frc::SmartDashboard::PutNumber("rot_percent", rot_percent);
 
     // Spin the bot at that percent speed
     // -, + to create CCW spin
