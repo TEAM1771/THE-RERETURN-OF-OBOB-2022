@@ -99,7 +99,7 @@ void robo5()
     frc::Timer timer;
     timer.Start();
 
-    while (!timer.HasElapsed(5_s))
+    while (!timer.HasElapsed(6.5_s))
         sleep();
 
     driveStraightFor(-.4, 0_deg, 60);
