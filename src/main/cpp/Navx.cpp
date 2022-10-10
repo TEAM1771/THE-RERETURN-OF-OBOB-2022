@@ -16,62 +16,6 @@ static std::unique_ptr<AHRS> navx;
 
 static bool first_time_getting_angle = true;
 
-/* LINEAR ALGEBRA :)
-
-static double PITCH_OFFSET;
-static double ROLL_OFFSET;
-
-
-struct Angles
-{
-    units::degree_t pitch;
-    units::degree_t roll;
-    units::degree_t yaw;
-};
-
-Angles getCorrectedAngles()
-{
-    if (first_run)
-    {
-
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(10s);
-        first_run = !first_run;
-
-        PITCH_OFFSET = navx->GetPitch();
-        ROLL_OFFSET = navx->GetRoll();
-        YAW_OFFSET = navx->GetYaw();
-    };
-
-    auto const pitch = navx->GetPitch() - PITCH_OFFSET;
-    auto const roll = navx->GetRoll() - ROLL_OFFSET;
-    auto const yaw = navx->GetYaw() - YAW_OFFSET;
-
-    frc::SmartDashboard::PutNumber("Raw Pitch", navx->GetPitch());
-    frc::SmartDashboard::PutNumber("Raw Roll", navx->GetRoll());
-    frc::SmartDashboard::PutNumber("Raw Yaw", navx->GetYaw());
-
-    frc::SmartDashboard::PutNumber("Offset Pitch", pitch);
-    frc::SmartDashboard::PutNumber("Offset Roll", roll);
-    frc::SmartDashboard::PutNumber("Offset Yaw", yaw);
-
-    frc::SmartDashboard::PutNumber("Pitch Offset", PITCH_OFFSET);
-    frc::SmartDashboard::PutNumber("Roll Offset", ROLL_OFFSET);
-    frc::SmartDashboard::PutNumber("Yaw Offset", YAW_OFFSET);
-
-    // [[maybe_unused]] constexpr auto PITCH_OFFSET =
-    //     (-90 + -15.6) * (wpi::numbers::pi / 180);
-
-    constexpr auto COS = -0.26891982051;
-    constexpr auto SIN = -0.96316256682;
-
-    return {
-        units::degree_t{COS * pitch + SIN * yaw},
-        units::degree_t{roll},
-        units::degree_t{-SIN * pitch + COS * yaw}};
-}
-*/
-
 /******************************************************************/
 /*                   Public Function Defintions                   */
 /******************************************************************/
