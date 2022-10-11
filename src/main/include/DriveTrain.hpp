@@ -4,6 +4,13 @@
 
 namespace DriveTrain
 {
+
+    enum GEAR
+    {
+        LOW = false,
+        HIGH = true
+    };
+
     /******************************************************************/
     /*                  Public Function Declarations                  */
     /******************************************************************/
@@ -16,7 +23,7 @@ namespace DriveTrain
     bool rotate(units::degree_t desired_CCW_rot, units::degree_t tolerance = 1_deg);
     void driveStraight(double velocity_percent, units::degree_t desired_CCW_rot);
 
-    void shift(bool up);
+    void shift(GEAR desired);
     void shiftToggle();
     void autoShift();
 

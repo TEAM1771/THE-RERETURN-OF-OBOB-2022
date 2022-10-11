@@ -11,9 +11,9 @@
         "vgap": 16.0,
         "titleType": 0,
         "tiles": {
-          "0,0": {
+          "2,1": {
             "size": [
-              1,
+              4,
               1
             ],
             "content": {
@@ -22,7 +22,7 @@
               "_title": "Auton Selector"
             }
           },
-          "1,0": {
+          "0,0": {
             "size": [
               1,
               1
@@ -31,52 +31,6 @@
               "_type": "Text View",
               "_source0": "network_table:///SmartDashboard/Yaw",
               "_title": "Yaw"
-            }
-          },
-          "2,0": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/to_go_CCW",
-              "_title": "to_go_CCW"
-            }
-          },
-          "3,0": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Current rot (from NavX)",
-              "_title": "Current rot (from NavX)"
-            }
-          },
-          "4,0": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/rot_percent",
-              "_title": "rot_percent"
-            }
-          },
-          "5,0": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Boolean Box",
-              "_source0": "network_table:///SmartDashboard/Rejection Enabled",
-              "_title": "Rejection Enabled",
-              "Colors/Color when true": "#7CFC00FF",
-              "Colors/Color when false": "#8B0000FF"
             }
           }
         }

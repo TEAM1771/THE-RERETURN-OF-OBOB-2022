@@ -28,8 +28,8 @@ static rev::CANSparkMax b_r{4, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
 // For autoShift()
 static auto const f_l_encoder = f_l.GetEncoder();
 static auto const f_r_encoder = f_r.GetEncoder();
-constexpr auto SHIFT_UP_THRESHOLD = 3000;
-constexpr auto SHIFT_DOWN_THRESHOLD = 2000;
+constexpr auto SHIFT_UP_THRESHOLD = 3500;
+constexpr auto SHIFT_DOWN_THRESHOLD = 1500;
 
 // For shift function
 constexpr int P_HUB_ID = 15;
@@ -105,8 +105,6 @@ bool DriveTrain::rotate(units::degree_t desired_CCW_rot, units::degree_t toleran
     // How far off is the bot?
     units::degree_t to_go_CCW = diffFromCurrentRot(desired_CCW_rot);
 
-
-
     // Determine a speed percentage to spin at (positive is CCW, negative is CW)
     double rot_percent = to_go_CCW.value() * ROT_P;
 
@@ -139,7 +137,7 @@ void DriveTrain::driveStraight(double velocity_percent, units::degree_t desired_
     double correction = to_go_CCW.value() * ROT_P;
 
     if (std::abs(correction) > MAX_ROT)
-        correction = MAX_ROT;
+        correction = (correction > 0) ? MAX_ROT : -MAX_ROT;
 
     if (correction > 0) // If correction is CCW
     {
@@ -155,10 +153,10 @@ void DriveTrain::driveStraight(double velocity_percent, units::degree_t desired_
     drive(l, r);
 }
 
-void DriveTrain::shift(bool up)
+void DriveTrain::shift(GEAR desired)
 {
-    if (up != shifter.Get())
-        shifter.Set(up);
+    if (desired != shifter.Get())
+        shifter.Set(desired);
 }
 
 void DriveTrain::shiftToggle()
@@ -174,9 +172,9 @@ void DriveTrain::autoShift()
     auto const speed = std::abs((left_vel + right_vel) / 2);
 
     if (speed > SHIFT_UP_THRESHOLD && !shifter.Get())
-        DriveTrain::shift(true);
+        DriveTrain::shift(GEAR::HIGH);
     else if (speed < SHIFT_DOWN_THRESHOLD && shifter.Get())
-        DriveTrain::shift(false);
+        DriveTrain::shift(GEAR::LOW);
 }
 
 double DriveTrain::getFLPos()

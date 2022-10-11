@@ -54,18 +54,12 @@ void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic()
 {
-
   double const l = -BUTTON::JOY_L.GetY();
   double const r = -BUTTON::JOY_R.GetY();
 
-  DriveTrain::shift(false);
-  // static bool has_changed = false;
-  // DriveTrain::shift(has_changed ^=BUTTON::SHIFT);
+  // DriveTrain::shift(DriveTrain::GEAR::LOW);
 
-  // if(BUTTON::JOY_R.GetThrottle() > 0)
   DriveTrain::drive(l, r);
-  //   else
-  // DriveTrain::drive(-r, -l);
 
   if (BUTTON::INTAKE)
     Intake::run(false);
@@ -78,6 +72,11 @@ void Robot::TeleopPeriodic()
   // if (BUTTON::SHIFT.getRawButtonPressed())
   //   DriveTrain::shiftToggle();
 
+
+  if(BUTTON::JOY_R.GetZ() <= 0.5)
+    DriveTrain::autoShift();
+  else
+    DriveTrain::shift(DriveTrain::GEAR::LOW);
   // Tuning/debugging purposes
   // frc::SmartDashboard::PutNumber("Yaw", Navx::getYaw().value());
 }

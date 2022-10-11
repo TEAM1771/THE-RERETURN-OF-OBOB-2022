@@ -61,7 +61,7 @@ void driveStraightFor(double velocity_percent, units::degree_t desired_CCW_rot, 
 
     double distance_traveled = 0;
 
-    while (desired_motor_rotations > distance_traveled)
+    while (distance_traveled < desired_motor_rotations)
     {
         delta_l_pos = std::abs(DriveTrain::getFLPos() - start_l_pos);
         delta_r_pos = std::abs(DriveTrain::getFRPos() - start_r_pos);
